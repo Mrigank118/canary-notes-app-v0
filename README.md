@@ -1,73 +1,122 @@
-# Welcome to your Lovable project
+Absolutely! Here’s a **concise but complete README** for your **Canary Notes App** project, covering the AIM, setup, and mid-eval flow. You can just copy-paste it.
 
-## Project info
+---
 
-**URL**: https://lovable.dev/projects/c782809c-0138-4891-a919-47302855ae09
+# Canary Notes App
 
-## How can I edit this code?
+## **🚀 AIM**
 
-There are several ways of editing your application.
+The **Canary Notes App** demonstrates a **Canary Deployment** in Kubernetes:
 
-**Use Lovable**
+* Deploy a **frontend Notes App** using **Vite + React**.
+* Run **Stable** and **Canary** versions simultaneously.
+* Use **traffic splitting** to send most users to Stable and a few to Canary.
+* Demonstrate **safe deployment** and **rollback** for new releases.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c782809c-0138-4891-a919-47302855ae09) and start prompting.
+This is a **visual, cloud-native DevOps demo** showing how modern CI/CD pipelines handle incremental releases.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## **📦 Technology Stack**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+* **Frontend:** React (Vite)
+* **Containerization:** Docker
+* **Deployment & Release Management:** Helm
+* **Orchestration:** Kubernetes (Minikube)
+* **Traffic Control:** Istio (optional for traffic splitting)
+* **Image Registry:** Docker Hub
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## **🛠 Project Structure**
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+canary-notes-app/
+├── charts/ (if any sub-charts)
+├── templates/ (Helm templates)
+│   ├── deployment-stable.yaml
+│   ├── deployment-canary.yaml
+│   ├── service-stable.yaml
+│   ├── service-canary.yaml
+│   └── ingress.yaml
+├── values.yaml
+├── Dockerfile
+├── src/
+│   └── App.jsx (React Notes App)
+└── package.json
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## **⚡ Setup Steps**
 
-**Use GitHub Codespaces**
+### **1. Build & Push Docker Images**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+# Stable
+docker build -t notes-app:stable .
+docker tag notes-app:stable mrigankwastaken/canary-notes-app:stable
+docker push mrigankwastaken/canary-notes-app:stable
 
-## What technologies are used for this project?
+# Canary
+docker build -t notes-app:canary .
+docker tag notes-app:canary mrigankwastaken/canary-notes-app:canary
+docker push mrigankwastaken/canary-notes-app:canary
+```
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### **2. Helm Deployment**
 
-## How can I deploy this project?
+```bash
+# Install Helm chart
+helm install canary-notes ./canary-notes-app
 
-Simply open [Lovable](https://lovable.dev/projects/c782809c-0138-4891-a919-47302855ae09) and click on Share -> Publish.
+# Or upgrade existing release
+helm upgrade canary-notes ./canary-notes-app
+```
 
-## Can I connect a custom domain to my Lovable project?
+Check pods/services:
 
-Yes, you can!
+```bash
+kubectl get pods
+kubectl get svc
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### **3. Traffic Split (Optional: Istio)**
+
+1. Install Istio demo profile:
+
+```bash
+istioctl install --set profile=demo -y
+kubectl label namespace default istio-injection=enabled
+```
+
+2. Apply Gateway + VirtualService for 90% Stable / 10% Canary:
+
+```bash
+kubectl apply -f istio-virtualservice.yaml
+```
+
+3. Test traffic:
+
+```bash
+kubectl get svc istio-ingressgateway -n istio-system
+curl http://<INGRESS_IP>/
+```
+
+* Refresh multiple times: most hits go to **Stable ✅**, some to **Canary 🚀**.
+
+---
+
+### **4. Rollback Canary**
+
+```bash
+helm rollback canary-notes 1
+```
+
+* Restores Stable deployment if Canary fails.
+
+---
