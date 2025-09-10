@@ -13,7 +13,7 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
           <div className="flex items-center gap-3">
             <NotebookPen className="w-8 h-8 text-foreground" strokeWidth={1.5} />
             <h1 className="text-3xl font-display text-foreground">
-              Canary Notes
+              Notes - Canary
             </h1>
           </div>
           
