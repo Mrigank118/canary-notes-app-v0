@@ -1,61 +1,60 @@
-
 # Canary Notes App
 
-## **🚀 AIM**
+## Overview
 
-The **Canary Notes App** demonstrates a **Canary Deployment** in Kubernetes:
+The **Canary Notes App** serves as a demonstration of **Canary Deployment** strategies in Kubernetes environments. The project showcases **incremental release deployment**, enabling teams to validate new versions of an application with limited exposure before a full rollout.
 
-* Deploy a **frontend Notes App** using **Vite + React**.
-* Run **Stable** and **Canary** versions simultaneously.
-* Use **traffic splitting** to send most users to Stable and a few to Canary.
-* Demonstrate **safe deployment** and **rollback** for new releases.
+Key objectives:
 
-This is a **visual, cloud-native DevOps demo** showing how modern CI/CD pipelines handle incremental releases.
-
----
-
-## **📦 Technology Stack**
-
-* **Frontend:** React (Vite)
-* **Containerization:** Docker
-* **Deployment & Release Management:** Helm
-* **Orchestration:** Kubernetes (Minikube)
-* **Traffic Control:** Istio (optional for traffic splitting)
-* **Image Registry:** Docker Hub
+* Deploy a **React-based Notes App** using **Vite**.
+* Operate **Stable** and **Canary** versions concurrently.
+* Implement **traffic segmentation** to direct the majority of traffic to Stable while selectively routing a subset to Canary.
+* Illustrate **safe deployment practices** and **rollback procedures** in a Kubernetes CI/CD pipeline.
 
 ---
 
-## **🛠 Project Structure**
+## Technology Stack
+
+**Frontend:** React (Vite)
+**Containerization:** Docker
+**Deployment Management:** Helm
+**Orchestration:** Kubernetes (Minikube)
+**Traffic Management:** Istio (optional, for traffic splitting)
+**Container Registry:** Docker Hub
+
+---
+
+## Project Structure
 
 ```
 canary-notes-app/
-├── charts/ (if any sub-charts)
-├── templates/ (Helm templates)
+├── charts/                # Optional sub-charts for Helm
+├── templates/             # Helm manifests
 │   ├── deployment-stable.yaml
 │   ├── deployment-canary.yaml
 │   ├── service-stable.yaml
 │   ├── service-canary.yaml
 │   └── ingress.yaml
-├── values.yaml
+├── values.yaml            # Helm values configuration
 ├── Dockerfile
 ├── src/
-│   └── App.jsx (React Notes App)
+│   └── App.jsx            # React Notes App
 └── package.json
 ```
 
 ---
 
-## **⚡ Setup Steps**
+## Setup and Deployment
 
-### **1. Build & Push Docker Images**
+### 1. Build and Push Docker Images
 
 ```bash
-# Stable
+# Stable version
 docker build -t notes-app:stable .
 docker tag notes-app:stable mrigankwastaken/canary-notes-app:stable
 docker push mrigankwastaken/canary-notes-app:stable
 
-# Canary
+# Canary version
 docker build -t notes-app:canary .
 docker tag notes-app:canary mrigankwastaken/canary-notes-app:canary
 docker push mrigankwastaken/canary-notes-app:canary
@@ -63,17 +62,17 @@ docker push mrigankwastaken/canary-notes-app:canary
 
 ---
 
-### **2. Helm Deployment**
+### 2. Deploy Helm Chart
 
 ```bash
-# Install Helm chart
+# Initial installation
 helm install canary-notes ./canary-notes-app
 
-# Or upgrade existing release
+# Upgrade existing release
 helm upgrade canary-notes ./canary-notes-app
 ```
 
-Check pods/services:
+Verify deployment:
 
 ```bash
 kubectl get pods
@@ -82,38 +81,45 @@ kubectl get svc
 
 ---
 
-### **3. Traffic Split (Optional: Istio)**
+### 3. Traffic Segmentation (Optional, Istio)
 
-1. Install Istio demo profile:
+1. Install Istio with the demo profile:
 
 ```bash
 istioctl install --set profile=demo -y
 kubectl label namespace default istio-injection=enabled
 ```
 
-2. Apply Gateway + VirtualService for 90% Stable / 10% Canary:
+2. Apply Istio Gateway and VirtualService configuration to achieve traffic split (e.g., 90% Stable, 10% Canary):
 
 ```bash
 kubectl apply -f istio-virtualservice.yaml
 ```
 
-3. Test traffic:
+3. Validate routing:
 
 ```bash
 kubectl get svc istio-ingressgateway -n istio-system
 curl http://<INGRESS_IP>/
 ```
 
-* Refresh multiple times: most hits go to **Stable ✅**, some to **Canary 🚀**.
-
 ---
 
-### **4. Rollback Canary**
+### 4. Canary Rollback
+
+If the Canary deployment exhibits instability, rollback to the previous stable release:
 
 ```bash
 helm rollback canary-notes 1
 ```
 
-* Restores Stable deployment if Canary fails.
+This ensures system reliability and minimal user disruption.
 
 ---
+
+### Notes
+
+* Designed as a **cloud-native DevOps demonstration**.
+* Emphasizes **incremental release deployment**, **traffic control**, and **rollback mechanisms**.
+* Can be extended to **automated CI/CD pipelines** with monitoring, alerting, and performance analysis.
+
