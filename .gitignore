@@ -1,0 +1,45 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+
+# Local environment
+.env
+.env.local
+.env.*.local
+
+# Editor configs
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+*.out
+*.err
+
+# Docker
+*.pid
+*.seed
+*.bak
+
+# Helm
+charts/*/charts/
+charts/*/tmpcharts/
+*.tgz
+
+# Kubernetes
+*.crt
+*.key
+.kube/
