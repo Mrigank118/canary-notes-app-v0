@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "canary-notes-app.fullname" . }}-stable
+  labels:
+    app: {{ include "canary-notes-app.name" . }}-stable
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "canary-notes-app.name" . }}-stable
+  template:
+    metadata:
+      labels:
+        app: {{ include "canary-notes-app.name" . }}-stable
+    spec:
+      containers:
+        - name: notes-app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 80

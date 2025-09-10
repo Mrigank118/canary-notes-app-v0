@@ -1,0 +1,16 @@
+# values.yaml
+
+service:
+  type: ClusterIP
+  port: 80
+
+image:
+  repository: mrigankwastaken/canary-notes-app
+  tag: stable
+  pullPolicy: IfNotPresent
+
+canary:
+  enabled: true
+  repository: mrigankwastaken/canary-notes-app
+  tag: canary
+  replicaCount: 1
