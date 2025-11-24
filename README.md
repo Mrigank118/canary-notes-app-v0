@@ -112,7 +112,20 @@ If the Canary deployment exhibits instability, rollback to the previous stable r
 ```bash
 helm rollback canary-notes 1
 ```
-
+```
+kubectl get pods -l version=canary
+kubectl get pods -l version=stable
+```
+```
+kubectl patch deployment canary-notes-app-canary \
+  -p '{"spec":{"template":{"spec":{"containers":[{"name":"notes-app","command":["/bin/false"]}]}}}}'
+```
+```
+kubectl get pods -w
+```
+```
+kubectl rollout undo deployment canary-notes-app-canary
+```
 This ensures system reliability and minimal user disruption.
 
 ---
