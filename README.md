@@ -126,6 +126,30 @@ kubectl get pods -w
 ```
 kubectl rollout undo deployment canary-notes-app-canary
 ```
+```
+sum(rate(container_cpu_usage_seconds_total{pod=~"canary-notes-app-.*"}[2m])) by (pod)
+
+stable
+IP=$(minikube ip)
+PORT=$(kubectl get svc notes-service -o jsonpath='{.spec.ports[0].nodePort}')
+while true; do curl -s http://$IP:$PORT > /dev/null; done
+
+canary
+while true; do curl -s http://localhost:7070 > /dev/null
+done
+
+kubectl scale deployment canary-notes-app-canary --replicas=2
+kubectl scale deployment canary-notes-app-canary --replicas=1
+```
+```
+increase(kube_pod_container_status_restarts_total{pod=~"canary-notes-app-canary-.*"}[5m])
+```
+```
+count(kube_pod_info{pod=~"canary-notes-app-canary-.*"})
+```
+```
+count(kube_pod_info{pod=~"canary-notes-app-stable-.*"})
+```
 This ensures system reliability and minimal user disruption.
 
 ---
